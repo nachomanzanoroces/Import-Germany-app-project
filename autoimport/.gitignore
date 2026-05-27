@@ -1,0 +1,16 @@
+# Claves y certificados SSL locales (¡No subir a GitHub por seguridad!)
+cert.pem
+key.pem
+
+# Scripts de depuración temporales
+check_js.py
+
+# Archivos del sistema y logs
+*.log
+.DS_Store
+Thumbs.db
+
+# Carpetas internas del agente/IDE
+.tempmediaStorage/
+.system_generated/
+scratch/

@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Manza AutoGerma Import - Coche desde Alemania a España</title>
+    <meta name="description" content="Prototipo de aplicación móvil para guiarte en la importación y matriculación de vehículos de Alemania a España.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="style.css?v=2026_v5">
+</head>
+<body>
+
+    <!-- Main Desktop Frame for Mobile Viewport Mockup -->
+    <div class="app-device-wrapper">
+        <div class="device-notch"></div>
+        <div class="device-status-bar">
+            <span class="status-time" id="statusTime">12:30</span>
+            <div class="status-icons">
+                <svg viewBox="0 0 24 24" class="icon-signal"><path d="M2 22h20V2z" fill="currentColor"/></svg>
+                <svg viewBox="0 0 24 24" class="icon-wifi"><path d="M12 21l-12-12c4.42-4.42 10.42-7 12-7s7.58 2.58 12 7z" fill="currentColor"/></svg>
+                <svg viewBox="0 0 24 24" class="icon-battery"><path d="M17 5H3a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zM21 9h2v6h-2V9z" fill="currentColor"/></svg>
+            </div>
+        </div>
+
+        <!-- Phone Screen Content Container -->
+        <main class="device-screen" id="deviceScreen">
+
+            <!-- PAGE 1: DASHBOARD (INICIO) -->
+            <section class="app-page active" id="page-dashboard">
+                <header class="page-header">
+                    <div class="header-logo">
+                        <span class="logo-accent">Manza</span> AutoGerma
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="global-cost-pill" title="Presupuesto Total Importación">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                            <span class="global-cost-val">0 €</span>
+                        </div>
+                        <select id="lang-selector" class="lang-select-dropdown">
+                            <option value="es" selected>ES</option>
+                            <option value="en">EN</option>
+                            <option value="de">DE</option>
+                        </select>
+                        <div class="header-avatar" id="trigger-profile">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E" alt="Avatar Usuario">
+                        </div>
+                    </div>
+                </header>
+
+                <div class="scroll-container">
+                    <!-- Progress Card -->
+                    <div class="dashboard-progress-card">
+                        <div class="progress-info">
+                            <h3>Progreso de Importación</h3>
+                            <p class="progress-sub" id="current-step-label">Fase 1: En Alemania</p>
+                            <p class="progress-desc" id="current-step-desc">Buscando vehículo ideal...</p>
+                        </div>
+                        <div class="progress-visual">
+                            <svg class="circular-progress" viewBox="0 0 36 36">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="circle" id="dashboard-progress-circle" stroke-dasharray="12, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            </svg>
+                            <span class="progress-percentage" id="dashboard-progress-text">12%</span>
+                        </div>
+                    </div>
+
+                    <!-- Reset All Process Button (NEW) -->
+                    <div style="padding: 0 16px; margin-top: -12px; margin-bottom: 16px;">
+                        <button id="btn-reset-all-process" class="btn-reset-premium" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(239, 68, 68, 0.08); border: 1.5px dashed rgba(239, 68, 68, 0.3); border-radius: 12px; color: #f87171; padding: 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-family: var(--font-heading);">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                            Reiniciar todo el proceso de cero
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Notification Banner -->
+                    <div class="alert-banner warning" id="iva-alert" style="display: none;">
+                        <svg class="alert-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
+                        <div class="alert-content">
+                            <h4>Atención: IVA de Coche "Nuevo"</h4>
+                            <p>Este vehículo tiene menos de 6 meses o 6.000 km. España lo considera nuevo; deberás pagar el 21% de IVA en España aunque ya lo pagues en Alemania.</p>
+                        </div>
+                    </div>
+
+                    <!-- Import Flow Steps Quick Peek -->
+                    <div class="section-title">
+                        <h2>Tu Ruta de Importación</h2>
+                        <span class="view-all" id="btn-peek-checklist">Ver todo</span>
+                    </div>
+
+                    <div class="flow-list">
+                        <div class="flow-item" data-step="1">
+                            <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">🔍</div>
+                            <div class="flow-details">
+                                <h4>Búsqueda & Inspección <span id="btn-flow-search-lupa" class="flow-search-lupa-badge" style="cursor: pointer; margin-left: 6px; font-size: 13px; padding: 2px 5px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 6px; color: #a5b4fc; display: inline-flex; align-items: center; justify-content: center; transform: translateY(-1px);" title="Buscar coches ahora">🔍</span></h4>
+                                <p>Filtra coches en Alemania y solicita NeedCarHelp.</p>
+                            </div>
+                        </div>
+                        <div class="flow-item" data-step="2">
+                            <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">📋</div>
+                            <div class="flow-details">
+                                <h4>Trámites en Alemania</h4>
+                                <p>Factura, COC, Placas temporales y seguro exportación.</p>
+                            </div>
+                        </div>
+                        <div class="flow-item" data-step="3">
+                            <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">✈️</div>
+                            <div class="flow-details">
+                                <h4>Viaje e Itinerario</h4>
+                                <p>Planifica vuelo/bus y hotel para recoger el vehículo.</p>
+                            </div>
+                        </div>
+                        <div class="flow-item" data-step="4">
+                            <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">🏛️</div>
+                            <div class="flow-details">
+                                <h4>Trámites en España</h4>
+                                <p>Pasar ITV de importación, Modelo 576 e IVTM.</p>
+                            </div>
+                        </div>
+                        <div class="flow-item" data-step="5">
+                            <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">🪪</div>
+                            <div class="flow-details">
+                                <h4>DGT & Placas Definitivas</h4>
+                                <p>Matrícula de tráfico española y placas acrílicas.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Budget Summary Card -->
+                    <div class="section-title">
+                        <h2>Presupuesto Estimado</h2>
+                    </div>
+
+                    <div class="dashboard-budget-card">
+                        <div class="budget-main">
+                            <p class="budget-label">Coste Total Estimado de Importación</p>
+                            <h2 id="dash-budget-total">1.750,00 €</h2>
+                            <p class="budget-sub" id="dash-budget-car-price">Precio coche no incluido: 25.000 €</p>
+                        </div>
+                        <div class="budget-grid">
+                            <div class="budget-grid-item">
+                                <span>Impuestos España</span>
+                                <strong id="dash-budget-taxes">875,00 €</strong>
+                            </div>
+                            <div class="budget-grid-item">
+                                <span>Logística Viaje</span>
+                                <strong id="dash-budget-logistics">572,50 €</strong>
+                            </div>
+                            <div class="budget-grid-item">
+                                <span>Placas & Trámites</span>
+                                <strong id="dash-budget-admin">302,50 €</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PAGE 2: VEHICLE SEARCH & PRE-PURCHASE (BÚSQUEDA) -->
+            <section class="app-page" id="page-search">
+                <header class="page-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn-back-home" title="Volver al Inicio" aria-label="Volver al Inicio">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <h2>Búsqueda & Comparador IA</h2>
+                    </div>
+                    <div class="global-cost-pill" title="Presupuesto Total Importación">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        <span class="global-cost-val">0 €</span>
+                    </div>
+                </header>
+
+                <div class="scroll-container">
+                    <p class="page-desc">Busca en portales alemanes, añade hasta 4 coches al panel de comparación y analízalos con el Asistente Gemini AI.</p>
+
+                    <!-- Search Platforms grid -->
+                    <div class="grid-portals">
+                        <a href="https://www.mobile.de/" target="_blank" class="portal-card mobile-de">
+                            <div class="portal-badge">Deutschland</div>
+                            <h3>Mobile.de</h3>
+                            <p>El portal de vehículos más grande de Alemania.</p>
+                            <span class="portal-btn">Buscar Coches &rarr;</span>
+                        </a>
+
+                        <a href="https://www.autoscout24.de/" target="_blank" class="portal-card autoscout">
+                            <div class="portal-badge">Europe</div>
+                            <h3>AutoScout24</h3>
+                            <p>Líder europeo en anuncios clasificados.</p>
+                            <span class="portal-btn">Buscar Coches &rarr;</span>
+                        </a>
+                    </div>
+
+                    <!-- MULTI-VEHICLE COMPARISON PANEL -->
+                    <div class="comparison-panel-card">
+                        <div class="panel-header-row">
+                            <h3>Panel de Coches Seleccionados</h3>
+                            <span class="car-count-badge" id="car-count-label">0 / 4 Coches</span>
+                        </div>
+                        <p class="panel-sub">Selecciona al menos 2 vehículos para compararlos con Inteligencia Artificial.</p>
+
+                        <!-- Load Test Presets & Add buttons -->
+                        <div class="panel-actions-row">
+                            <button class="btn btn-secondary btn-sm" id="btn-load-presets">Cargar Coches de Prueba</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-toggle-add-form">+ Añadir Coche</button>
+                        </div>
+
+                        <!-- Manual Add Car Form -->
+                        <div class="add-car-expand-form" id="add-car-form" style="display: none;">
+                            <h4>Añadir Vehículo Manualmente</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="add-brand">Marca</label>
+                                    <input type="text" id="add-brand" placeholder="Ej. Audi" value="Audi">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-model">Modelo</label>
+                                    <input type="text" id="add-model" placeholder="Ej. A4 Avant" value="A4 Avant">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="add-price">Precio (€)</label>
+                                    <input type="number" id="add-price" placeholder="Ej. 24000" value="24000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-year">Año</label>
+                                    <input type="number" id="add-year" placeholder="Ej. 2021" value="2021">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="add-km">Kilometraje (km)</label>
+                                    <input type="number" id="add-km" placeholder="Ej. 45000" value="45000">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-co2">Emisiones CO₂ (g/km)</label>
+                                    <input type="number" id="add-co2" placeholder="Ej. 119" value="119">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="add-consumption">Consumo (L/100km)</label>
+                                    <input type="number" id="add-consumption" step="0.1" placeholder="Ej. 4.8" value="4.8">
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-power">Potencia (CV)</label>
+                                    <input type="number" id="add-power" placeholder="Ej. 150" value="150">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-photo-preset">Estilo / Foto Predefinida</label>
+                                <select id="add-photo-preset">
+                                    <option value="sedan">Berlina / Sedan Elegante</option>
+                                    <option value="suv">SUV Deportivo</option>
+                                    <option value="familiar" selected>Familiar / Avant</option>
+                                    <option value="compact">Compacto Deportivo</option>
+                                </select>
+                            </div>
+                            <div class="form-row mt-2">
+                                <button class="btn btn-secondary btn-sm" id="btn-cancel-add-car">Cancelar</button>
+                                <button class="btn btn-primary btn-sm" id="btn-submit-add-car">Añadir al Panel</button>
+                            </div>
+                        </div>
+
+                        <!-- Selected Cars List Grid -->
+                        <div class="selected-cars-list" id="compare-cars-list">
+                            <!-- Populated dynamically via app.js -->
+                            <div class="empty-list-placeholder" id="compare-cars-placeholder">
+                                <svg viewBox="0 0 24 24" width="40" height="40" class="placeholder-icon"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5H6.5c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z" fill="currentColor"/></svg>
+                                <p>No hay coches en el panel. Carga los coches de prueba o añade uno de forma manual.</p>
+                            </div>
+                        </div>
+
+                        <!-- Big Comparison Trigger Button -->
+                        <button class="btn btn-primary btn-block mt-3" id="btn-trigger-comparison" disabled>
+                            Comparar en Ventana con IA Gemini &rarr;
+                        </button>
+                    </div>
+
+                    <!-- NeedCarHelp Inspection Box -->
+                    <div class="inspection-service-card">
+
+                        <div class="service-logo-area">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2322c55e'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E" alt="NeedCarHelp" class="service-icon">
+                            <div class="service-title-text">
+                                <h3>Revisión Pre-Compra en Alemania</h3>
+                                <p>por <strong>NeedCarHelp</strong></p>
+                            </div>
+                        </div>
+                        <p class="service-desc">Evita estafas o vicios ocultos. Un mecánico experto irá al concesionario en Alemania, revisará el coche a fondo y te enviará un informe con más de 150 puntos de control.</p>
+
+                        <!-- Mock Booking Form -->
+                        <div class="booking-mock-box" id="booking-box">
+                            <h4>Solicitar Presupuesto de Inspección</h4>
+                            <form id="inspection-form" onsubmit="return false;">
+                                <!-- Car selection dropdown -->
+                                <div class="form-group">
+                                    <label for="inspect-car-select" id="lbl-inspect-car-select">Seleccionar coche del panel (opcional)</label>
+                                    <select id="inspect-car-select" style="width: 100%; height: 36px; background-color: rgba(15, 18, 24, 0.6); border: 1px solid var(--border-color); border-radius: 10px; color: #fff; padding: 0 10px; font-size: 12.5px; outline: none; margin-bottom: 12px; cursor: pointer;">
+                                        <option value="" id="opt-inspect-manual">-- Introducir datos manualmente o elegir coche --</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="inspect-brand">Marca</label>
+                                        <input type="text" id="inspect-brand" placeholder="Ej. BMW" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="inspect-model">Modelo</label>
+                                        <input type="text" id="inspect-model" placeholder="Ej. Serie 3" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inspect-link">Enlace del Anuncio (Mobile / AutoScout)</label>
+                                    <input type="url" id="inspect-link" placeholder="https://www.mobile.de/coche..." required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="inspect-location">Ubicación del Coche (Ciudad/CP Alemania)</label>
+                                    <input type="text" id="inspect-location" placeholder="Ej. Munich, 80331" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="btn-request-inspection">Solicitar Inspección</button>
+                            </form>
+
+                            <!-- SUGGESTED REVIEWERS SECTION (NEW) -->
+                            <div class="reviewer-options-box" style="margin-top: 24px; border-top: 1px dashed var(--border-color); padding-top: 20px;">
+                                <h4 id="inspect-suggested-title" style="margin-bottom: 8px; font-family: var(--font-heading); font-size: 14px; font-weight: 700; color: #fff;">Revisores Técnicos Recomendados</h4>
+                                <p class="service-desc" id="desc-inspect-suggested" style="margin-bottom: 12px; font-size: 11px; line-height: 1.4; color: var(--text-secondary);">Busca y compara otros centros oficiales o mecánicos de revisión técnica en Alemania. Te sugerimos el más adecuado según la ubicación del coche.</p>
+                                
+                                <!-- Search Bar for Reviewers -->
+                                <div class="search-input-combo" style="display: flex; gap: 8px; margin-bottom: 16px;">
+                                    <input type="text" id="inspect-search-input" placeholder="Buscar revisores por nombre, ciudad..." style="flex: 1; background-color: rgba(15, 18, 24, 0.6); border: 1px solid var(--border-color); border-radius: 10px; height: 36px; padding: 0 12px; color: #fff; font-size: 12.5px; outline: none;">
+                                    <button class="btn btn-secondary btn-sm" id="btn-inspect-clear-search" style="padding: 0 12px; height: 36px; font-size: 11px; border-radius: 10px; background-color: var(--bg-surface-elevated); color: #fff; border: 1px solid var(--border-color); cursor: pointer;">Limpiar</button>
+                                </div>
+                                
+                                <!-- Reviewers List Grid -->
+                                <div class="reviewers-list" id="reviewers-cards-list">
+                                    <!-- Populated dynamically via app.js -->
+                                </div>
+                            </div>
+
+                            <!-- EMAIL CONTACT DRAFT BOX (NEW) -->
+                            <div class="email-draft-card" id="inspect-email-draft-box" style="display: none; margin-top: 20px; background: rgba(99, 102, 241, 0.05); border: 1.5px solid rgba(99, 102, 241, 0.15); border-radius: 14px; padding: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                                <div class="draft-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <h4 id="inspect-email-title" style="color: #c7d2fe; margin: 0; font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 6px; font-family: var(--font-heading);">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="color: var(--color-secondary);"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                        Borrador de Correo de Solicitud
+                                    </h4>
+                                    <span class="badge badge-success" style="font-size: 9px; padding: 2px 6px;">Listo</span>
+                                </div>
+                                <p class="service-desc" id="inspect-email-desc" style="font-size: 11px; margin-bottom: 10px; color: var(--text-secondary);">Revisa el mensaje preparado y envíalo al revisor en un toque:</p>
+                                
+                                <div class="draft-field" style="margin-bottom: 6px; font-size: 11.5px;">
+                                    <strong id="inspect-email-to" style="color: var(--text-secondary);">Para:</strong> <span id="draft-to" style="color: #fff; font-weight: 500;">destinatario@correo.de</span>
+                                </div>
+                                <div class="draft-field" style="margin-bottom: 10px; font-size: 11.5px;">
+                                    <strong id="inspect-email-subject" style="color: var(--text-secondary);">Asunto:</strong> <span id="draft-subject" style="color: #fff; font-weight: 500;">Solicitud de Inspección...</span>
+                                </div>
+                                
+                                <div class="draft-body-preview" id="draft-body" style="background-color: rgba(15, 18, 24, 0.7); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; font-size: 11.5px; color: #d1d5db; line-height: 1.4; max-height: 140px; overflow-y: auto; white-space: pre-wrap; font-family: var(--font-body); margin-bottom: 12px; border-left: 3px solid var(--color-secondary);">
+                                    <!-- Formatted message goes here -->
+                                </div>
+                                
+                                <a id="btn-send-email-mailto" href="#" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 38px; font-size: 12px; font-weight: 700; text-decoration: none; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                    Enviar Correo de Solicitud &rarr;
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Success state -->
+                        <div class="booking-success-box" id="booking-success" style="display: none;">
+                            <div class="success-icon-wrapper">
+                                <svg viewBox="0 0 24 24" class="icon-check-success"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/></svg>
+                            </div>
+                            <h3>¡Solicitud Enviada con Éxito!</h3>
+                            <p>Hemos enlazado con el mecánico asignado en Alemania. Recibirás respuesta para coordinar la visita técnica en menos de 2 horas en tu email.</p>
+                            <button class="btn btn-secondary btn-sm" id="btn-reset-inspection">Hacer otra solicitud</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PAGE 3: COST CALCULATOR (CALCULADORA) -->
+            <section class="app-page" id="page-calculator">
+                <header class="page-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn-back-home" title="Volver al Inicio" aria-label="Volver al Inicio">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <h2>Calculadora de Importación</h2>
+                    </div>
+                    <div class="global-cost-pill" title="Presupuesto Total Importación">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        <span class="global-cost-val">0 €</span>
+                    </div>
+                </header>
+
+                <div class="scroll-container">
+                    <p class="page-desc">Estima con precisión todos los impuestos españoles (Modelo 576, ITP por provincias) y tasas de nacionalización.</p>
+
+                    <!-- SUGGESTED VEHICLES COMPONENT (NEW) -->
+                    <div id="calculator-suggestions-section" style="display: none; margin-bottom: 22px;">
+                        <div class="calc-section-title" id="calc-suggest-title">Vehículos Seleccionados (Presupuestos IA)</div>
+                        <div class="calc-suggestions-row" id="calc-suggestions-list">
+                            <!-- Populated dynamically via app.js -->
+                        </div>
+                    </div>
+
+                    <!-- Calculator Form Card -->
+                    <div class="calculator-form">
+                        
+                        <!-- Core sliders -->
+                        <div class="calc-section-title">Datos del Vehículo</div>
+                        
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="calc-price">Precio de Compra</label>
+                                <span class="slider-value" id="val-price">25.000 €</span>
+                            </div>
+                            <input type="range" id="calc-price" min="5000" max="120000" step="500" value="25000">
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="calc-co2">Emisiones de CO₂ (g/km)</label>
+                                <span class="slider-value" id="val-co2">135 g/km</span>
+                            </div>
+                            <input type="range" id="calc-co2" min="0" max="300" step="1" value="135">
+                            <p class="slider-subtext" id="co2-bracket-info">Tramo de matriculación: 4,75%</p>
+                        </div>
+
+                        <div class="slider-group">
+                            <div class="slider-header">
+                                <label for="calc-power">Potencia del Coche (CV)</label>
+                                <span class="slider-value" id="val-power">150 CV</span>
+                            </div>
+                            <input type="range" id="calc-power" min="50" max="600" step="5" value="150">
+                        </div>
+
+                        <div class="form-group-select">
+                            <label for="calc-province">Provincia de Matriculación (España)</label>
+                            <select id="calc-province">
+                                <option value="asturias" selected>Asturias (ITP 8% - Ayunt. Oviedo)</option>
+                                <option value="madrid">Madrid (ITP 4% - Ayunt. Madrid)</option>
+                                <option value="catalunya">Cataluña (ITP 5% - Ayunt. Barcelona)</option>
+                                <option value="andalucia">Andalucía (ITP 4% - Ayunt. Sevilla)</option>
+                                <option value="valencia">Comunidad Valenciana (ITP 8%)</option>
+                                <option value="galicia">Galicia (ITP 8%)</option>
+                                <option value="paisvasco">País Vasco (ITP 4%)</option>
+                            </select>
+                        </div>
+
+                        <!-- Secondary toggles -->
+                        <div class="calc-section-title">Contexto de Compra</div>
+
+                        <div class="toggle-card">
+                            <div class="toggle-info">
+                                <h4>¿El vendedor emite factura?</h4>
+                                <p>SÍ = Profesional con IVA. NO = Particular (se aplica Impuesto de Transferencias ITP en España).</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="calc-seller-invoice" checked>
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-card">
+                            <div class="toggle-info">
+                                <h4>Vehículo de Lujo o Gran Valor</h4>
+                                <p>Marca de prestigio (Ferrari, Maserati, Bentley, etc.) con costes arancelarios especiales.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="calc-luxury">
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-card">
+                            <div class="toggle-info">
+                                <h4>Vehículo Averiado / Dañado</h4>
+                                <p>Aplica descuentos de valoración, pero requiere transporte por grúa.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="calc-damaged">
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+
+                        <div class="toggle-card">
+                            <div class="toggle-info">
+                                <h4>Familia Numerosa</h4>
+                                <p>Bonificación del 50% en el Impuesto de Matriculación.</p>
+                            </div>
+                            <label class="switch">
+                                <input type="checkbox" id="calc-large-family">
+                                <span class="slider-switch"></span>
+                            </label>
+                        </div>
+
+                        <!-- Age / KM Inputs (IVA warnings) -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="calc-age">Antigüedad (Meses)</label>
+                                <input type="number" id="calc-age" min="1" max="240" value="36">
+                            </div>
+                            <div class="form-group">
+                                <label for="calc-km">Kilometraje (km)</label>
+                                <input type="number" id="calc-km" min="1" max="500000" value="45000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculations Breakdown Output -->
+                    <div class="calc-results-card">
+                        <div class="results-header">
+                            <h3>Presupuesto Detallado</h3>
+                            <span class="badge badge-success">Estimado</span>
+                        </div>
+
+                        <div class="results-total-row">
+                            <span id="calc-total-label">Presupuesto Total del Proyecto</span>
+                            <strong id="calc-total-import-cost">26.750,00 €</strong>
+                        </div>
+
+                        <div class="divider"></div>
+
+                        <!-- Itemized list -->
+                        <div class="results-list">
+                            <!-- Vehicle Purchase Price (Added Row) -->
+                            <div class="results-item highlight-price" style="background: rgba(99, 102, 241, 0.05); padding: 8px 10px; border-radius: 8px; border: 1.5px solid rgba(99, 102, 241, 0.15); margin-bottom: 8px;">
+                                <div class="item-name">
+                                    <span style="font-weight: 700; color: #fff;">Precio Adquisición del Coche</span>
+                                    <small>Valor principal del vehículo</small>
+                                </div>
+                                <span class="item-value" id="res-car-price" style="font-weight: 800; color: #a5b4fc;">25.000,00 €</span>
+                            </div>
+
+                            <div class="results-item">
+                                <div class="item-name">
+                                    <span>Impuesto Matriculación (Modelo 576)</span>
+                                    <small id="calc-bracket-percent">Tramo 4.75%</small>
+                                </div>
+                                <span class="item-value" id="res-tax-matriculacion">534,38 €</span>
+                            </div>
+
+                            <div class="results-item" id="row-itp" style="display: none;">
+                                <div class="item-name">
+                                    <span>Impuesto Transferencia (ITP)</span>
+                                    <small id="calc-itp-percent">Asturias (8%)</small>
+                                </div>
+                                <span class="item-value" id="res-tax-itp">0,00 €</span>
+                            </div>
+
+                            <div class="results-item">
+                                <div class="item-name">
+                                    <span>ITV de Importación (Aproximado)</span>
+                                    <small>Ficha técnica española</small>
+                                </div>
+                                <span class="item-value" id="res-itv">150,00 €</span>
+                            </div>
+
+                            <div class="results-item">
+                                <div class="item-name">
+                                    <span>Placas y Tasas Tráfico</span>
+                                    <small>DGT, provisionales verdes y blancas</small>
+                                </div>
+                                <span class="item-value" id="res-traffic-fees">152,50 €</span>
+                            </div>
+
+                            <div class="results-item">
+                                <div class="item-name">
+                                    <span>Gestión ImportarCoches</span>
+                                    <small>250€ + IVA (21%)</small>
+                                </div>
+                                <span class="item-value" id="res-management">302,50 €</span>
+                            </div>
+
+                            <div class="results-item highlight">
+                                <div class="item-name">
+                                    <span>Logística de Viaje / Transporte</span>
+                                    <small id="res-logistics-type">Conduciendo desde Alemania</small>
+                                </div>
+                                <span class="item-value" id="res-logistics-cost">610,62 €</span>
+                            </div>
+                        </div>
+
+                        <!-- Call to Action -->
+                        <button class="btn btn-primary btn-block" id="btn-save-calc-budget">Aplicar Presupuesto al Flujo</button>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PAGE 4: TRAVEL & ACCOMMODATION (VIAJE & HOTELES) -->
+            <section class="app-page" id="page-travel">
+                <header class="page-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn-back-home" title="Volver al Inicio" aria-label="Volver al Inicio">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <h2>Viaje & Alojamiento</h2>
+                    </div>
+                    <div class="global-cost-pill" title="Presupuesto Total Importación">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        <span class="global-cost-val">0 €</span>
+                    </div>
+                </header>
+
+                <div class="scroll-container">
+                    <p class="page-desc">Planifica tu viaje para recoger el vehículo en Alemania o contrata transporte en portacoches.</p>
+
+                    <!-- Logistics Chooser Tabs -->
+                    <div class="logistics-tabs">
+                        <button class="log-tab active" id="tab-log-drive">
+                            <svg viewBox="0 0 24 24" class="tab-icon"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5H6.5c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.27-3.82c.14-.4.52-.68.96-.68h9.54c.44 0 .82.28.96.68L19 11H5z" fill="currentColor"/></svg>
+                            <span>Ir a por él</span>
+                        </button>
+                        <button class="log-tab" id="tab-log-carrier">
+                            <svg viewBox="0 0 24 24" class="tab-icon"><path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zM6 18.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm12 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm2-7.5h-3V9h3v2z" fill="currentColor"/></svg>
+                            <span>Portacoches</span>
+                        </button>
+                    </div>
+
+                    <!-- OPTION 1: DRIVE HOME DETAILS (ACTIVE) -->
+                    <div id="drive-home-panel" class="logistics-panel active">
+                        
+                        <!-- Travel Planners inputs -->
+                        <div class="itinerary-card">
+                            <h4>Plan de Itinerario en Coche</h4>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="travel-origin">Ciudad Origen (Alemania)</label>
+                                    <input type="text" id="travel-origin" value="Munich" placeholder="Ej. Munich">
+                                </div>
+                                <div class="form-group">
+                                    <label for="travel-dest">Destino (España)</label>
+                                    <input type="text" id="travel-dest" value="Oviedo" placeholder="Ej. Oviedo">
+                                </div>
+                            </div>
+
+                            <!-- Flight/Bus portal links -->
+                            <div class="portal-link-row">
+                                <a href="https://www.skyscanner.es/" target="_blank" class="mini-portal-link sky">
+                                    <svg viewBox="0 0 24 24" class="mini-icon"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z" fill="currentColor"/></svg>
+                                    Vuelo (Skyscanner)
+                                </a>
+                                <a href="https://www.alsa.es/" target="_blank" class="mini-portal-link alsa">
+                                    <svg viewBox="0 0 24 24" class="mini-icon"><path d="M20 12h-2V5h2v7zm-4 0h-2V5h2v7zm-4 0h-2V5h2v7zM8 12H6V5h2v7zM2 12H0V5h2v7zm18 3h-2v4h2v-4zm-4 0h-2v4h2v-4zm-4 0h-2v4h2v-4zM8 15H6V19h2v-4zM2 15H0v4h2v-4z" fill="currentColor"/></svg>
+                                    Autobús (Alsa)
+                                </a>
+                            </div>
+
+                            <!-- Driving calculation fields -->
+                            <div class="slider-group mt-3">
+                                <div class="slider-header">
+                                    <label for="travel-consumption">Consumo coche (L/100km)</label>
+                                    <span class="slider-value" id="val-consumption">6.5 L</span>
+                                </div>
+                                <input type="range" id="travel-consumption" min="3.0" max="15.0" step="0.1" value="6.5">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="travel-fuel-price">Precio Carburante (€/L)</label>
+                                    <input type="number" id="travel-fuel-price" min="1.0" max="3.0" step="0.01" value="1.72">
+                                </div>
+                                <div class="form-group">
+                                    <label for="travel-passengers">Nº Pasajeros</label>
+                                    <input type="number" id="travel-passengers" min="1" max="5" value="1">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- HOTEL SEARCH AREA (NEW UPGRADE) -->
+                        <div class="hotel-finder-section">
+                            <div class="hotel-section-header">
+                                <h3>Buscar Alojamiento para la Ruta</h3>
+                                <div class="provider-badges">
+                                    <span class="prov-badge booking">Booking.com</span>
+                                    <span class="prov-badge trivago">Trivago</span>
+                                </div>
+                            </div>
+                            <p class="section-sub">Busca hoteles en tu ciudad de recogida o a mitad de camino para descansar.</p>
+
+                            <!-- Hotel Search Trigger Input -->
+                            <div class="hotel-search-card">
+                                <div class="form-group">
+                                    <label for="hotel-search-city">¿Dónde quieres buscar hotel?</label>
+                                    <div class="search-input-combo">
+                                        <input type="text" id="hotel-search-city" value="Munich, Alemania" placeholder="Ciudad o Código Postal">
+                                        <button class="btn btn-search-hotels" id="btn-trigger-hotel-search">Buscar Hoteles</button>
+                                    </div>
+                                </div>
+
+                                <div class="slider-group mb-0">
+                                    <div class="slider-header">
+                                        <label for="hotel-nights">Noches de Alojamiento en la Ruta</label>
+                                        <span class="slider-value" id="val-hotel-nights">2 Noches</span>
+                                    </div>
+                                    <input type="range" id="hotel-nights" min="1" max="5" step="1" value="2">
+                                    <p class="slider-subtext" id="hotel-estimated-lodging">Coste de estancia estimado: 170,00 € (85€ / noche)</p>
+                                </div>
+                            </div>
+
+                            <!-- Mock Hotels Grid -->
+                            <div class="mock-hotels-scroll">
+                                <div class="mock-hotel-card">
+                                    <div class="hotel-img" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 60%22 fill=%22%232c3e50%22%3E%3Crect width=%22100%22 height=%2260%22/%3E%3Ctext x=%2250%22 y=%2235%22 fill=%22white%22 font-size=%228%22 text-anchor=%22middle%22%3EB%26B Hotel Munich%3C/text%3E%3C/svg%3E');">
+                                        <span class="hotel-price-tag">65€/n</span>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <div class="hotel-rating">⭐️ 4.2 (Bueno)</div>
+                                        <h4>B&B Hotel Munich Center</h4>
+                                        <p>Económico, moderno, parking privado y al lado de la autopista A9.</p>
+                                        <a href="https://www.booking.com/searchresults.html?ss=Munich" target="_blank" class="hotel-book-btn">Ver en Booking</a>
+                                    </div>
+                                </div>
+
+                                <div class="mock-hotel-card">
+                                    <div class="hotel-img" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 60%22 fill=%22%2316a085%22%3E%3Crect width=%22100%22 height=%2260%22/%3E%3Ctext x=%2250%22 y=%2235%22 fill=%22white%22 font-size=%228%22 text-anchor=%22middle%22%3EHoliday Inn Munich%3C/text%3E%3C/svg%3E');">
+                                        <span class="hotel-price-tag">92€/n</span>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <div class="hotel-rating">⭐️ 4.6 (Fantástico)</div>
+                                        <h4>Holiday Inn Express</h4>
+                                        <p>Desayuno incluido, excelente ubicación para arrancar el viaje.</p>
+                                        <a href="https://www.trivago.es/" target="_blank" class="hotel-book-btn">Ver en Trivago</a>
+                                    </div>
+                                </div>
+
+                                <div class="mock-hotel-card">
+                                    <div class="hotel-img" style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 60%22 fill=%22%237f8c8d%22%3E%3Crect width=%22100%22 height=%2260%22/%3E%3Ctext x=%2250%22 y=%2235%22 fill=%22white%22 font-size=%228%22 text-anchor=%22middle%22%3EStopover Inn Lyon%3C/text%3E%3C/svg%3E');">
+                                        <span class="hotel-price-tag">78€/n</span>
+                                    </div>
+                                    <div class="hotel-info">
+                                        <div class="hotel-rating">⭐️ 4.4 (Muy Bueno)</div>
+                                        <h4>Stopover Inn Lyon (Ruta)</h4>
+                                        <p>Ideal a mitad de camino entre Alemania y España (Francia).</p>
+                                        <a href="https://www.booking.com/searchresults.html?ss=Lyon" target="_blank" class="hotel-book-btn">Ver en Booking</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Calculations result summary for Drive Logistics -->
+                        <div class="route-breakdown-card">
+                            <h4>Desglose de Logística de Ruta</h4>
+                            <div class="route-list">
+                                <div class="route-item">
+                                    <span>Vuelo de Ida (Estimado Skyscanner)</span>
+                                    <strong id="item-log-flight">120,00 €</strong>
+                                </div>
+                                <div class="route-item">
+                                    <span>Placas exportación + Seguro temporal</span>
+                                    <strong>250,00 €</strong>
+                                </div>
+                                <div class="route-item">
+                                    <span>Carburante aproximado (2.100 km)</span>
+                                    <strong id="item-log-fuel">240,62 €</strong>
+                                </div>
+                                <div class="route-item">
+                                    <span>Peajes internacionales (Francia/España)</span>
+                                    <strong>95,00 €</strong>
+                                </div>
+                                <div class="route-item">
+                                    <span>Noches Alojamiento (Booking/Trivago)</span>
+                                    <strong id="item-log-hotel">170,00 €</strong>
+                                </div>
+                                <div class="divider"></div>
+                                <div class="route-item total">
+                                    <span>Total Viaje por Carretera</span>
+                                    <strong id="item-log-total">875,62 €</strong>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI TRAVEL PLANNER CONTAINER -->
+                        <div class="ai-travel-planner-section mt-4">
+                            <button class="btn btn-travel-ai btn-block" id="btn-trigger-travel-ai">
+                                <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="vertical-align: middle; margin-right: 6px;"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-2.3l-.85-.6C8.8 12.16 8 10.63 8 9c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.63-.8 3.16-2.15 4.1z" fill="currentColor"/></svg>
+                                <span id="btn-travel-ai-text">Crear Plan de Viaje con IA</span>
+                                <div class="spinner-inline hidden" id="btn-travel-ai-spinner"></div>
+                            </button>
+                            
+                            <!-- Dynamic Plan Output Card -->
+                            <div class="travel-ai-card" id="travel-ai-plan-card" style="display: none;">
+                                <!-- Header -->
+                                <div class="travel-ai-header">
+                                    <div class="ai-header-title-row">
+                                        <div class="ai-badge-glow">Gemini IA</div>
+                                        <h3 id="travel-ai-card-title">Ruta de Importación Personalizada</h3>
+                                    </div>
+                                    <button class="btn-copy-plan" id="btn-copy-travel-plan" title="Copiar itinerario">
+                                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                    </button>
+                                </div>
+                                <div class="travel-ai-meta">
+                                    <span id="travel-ai-meta-car">Vehículo: --</span> • 
+                                    <span id="travel-ai-meta-route">Ruta: -- → --</span>
+                                </div>
+                                
+                                <!-- Timeline phases -->
+                                <div class="travel-timeline" id="travel-ai-timeline-content">
+                                    <!-- Rendered dynamically in app.js -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OPTION 2: TRANSPORT CARRIER PANEL (HIDDEN BY DEFAULT) -->
+                    <div id="carrier-panel" class="logistics-panel">
+                        <div class="carrier-service-card">
+                            <div class="carrier-top">
+                                <svg viewBox="0 0 24 24" class="carrier-logo-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" fill="currentColor"/></svg>
+                                <div>
+                                    <h3>Envío en Camión Portacoches</h3>
+                                    <p>Servicio puerta a puerta de Alemania a España</p>
+                                </div>
+                            </div>
+                            <p class="service-desc">Si no dispones de tiempo para viajar o el coche está averiado, la grúa portacoches es la mejor opción. Tiempo de entrega aproximado: 7 a 12 días laborables.</p>
+
+                            <div class="carrier-price-card">
+                                <p>Tarifa Única Estimada (Alemania Central a España Norte)</p>
+                                <h2>950,00 €</h2>
+                                <small>Incluye seguro de carga CMR, tasas logísticas y entrega en tu domicilio.</small>
+                            </div>
+
+                            <button class="btn btn-primary btn-block" id="btn-select-carrier">Elegir Grúa Portacoches</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PAGE 5: STEP BY STEP CHECKLIST (PASO A PASO) -->
+            <section class="app-page" id="page-checklist">
+                <header class="page-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn-back-home" title="Volver al Inicio" aria-label="Volver al Inicio">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <h2>Tu Guía Paso a Paso</h2>
+                    </div>
+                    <div class="global-cost-pill" title="Presupuesto Total Importación">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        <span class="global-cost-val">0 €</span>
+                    </div>
+                </header>
+
+                <div class="scroll-container">
+                    <p class="page-desc">Checklist interactivo y detallado basado en las instrucciones oficiales. Completa los pasos para guiarte en el proceso.</p>
+
+                    <!-- Phase Filter Buttons -->
+                    <div class="checklist-phase-tabs">
+                        <button class="phase-tab active" id="btn-phase-ger">1. En Alemania</button>
+                        <button class="phase-tab" id="btn-phase-esp">2. En España</button>
+                    </div>
+
+                    <!-- Checklist Containers -->
+                    <!-- GERMANY CHECKLIST -->
+                    <div class="checklist-container active" id="chk-germany-container">
+                        <div class="flow-list checklist-flow">
+                            <!-- Check 1 -->
+                            <div class="checklist-card" data-chk-id="ger-1">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-ger-1">
+                                    <label for="chk-ger-1">
+                                        <h4>Búsqueda & Selección de Vehículo</h4>
+                                        <p>Plataformas oficiales y filtros.</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Utiliza Mobile.de y AutoScout24 de Alemania. Filtra por características, kilometraje e historial.</p>
+                                    <div class="card-links">
+                                        <a href="https://www.mobile.de/" target="_blank" class="card-btn-link">Mobile.de</a>
+                                        <a href="https://www.autoscout24.de/" target="_blank" class="card-btn-link">AutoScout24</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check 2 -->
+                            <div class="checklist-card" data-chk-id="inspect">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-inspect">
+                                    <label for="chk-inspect">
+                                        <h4>Revisión Pre-Compra (Mecánico)</h4>
+                                        <p>Comprobación técnica in-situ.</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Muy aconsejable solicitar informe de NeedCarHelp para verificar el coche antes del pago.</p>
+                                    <div class="card-links">
+                                        <a href="https://needcarhelp.es/" target="_blank" class="card-btn-link">NeedCarHelp</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check 3 -->
+                            <div class="checklist-card active" data-chk-id="ger-3">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-ger-3">
+                                    <label for="chk-ger-3">
+                                        <h4>Documentación del Concesionario</h4>
+                                        <p>Factura/Contrato, Zulassungsbescheinigung, COC</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Solicita al vendedor la factura (profesional) o contrato de compraventa (particular), el COC (Certificado europeo de conformidad) y el permiso de circulación alemán (Zulassungsbescheinigung Teil I y II).</p>
+                                    <div class="upload-area">
+                                        <p class="upload-lbl">Sube o escanea el Contrato/Factura para validar el paso:</p>
+                                        <button class="btn btn-sm btn-upload-doc" data-doc-type="factura">Escanear Documento</button>
+                                        <div class="uploaded-doc-badge" style="display: none;" id="badge-uploaded-factura">
+                                            <span>📄 factura_compra.pdf</span>
+                                            <span class="remove-doc">&times;</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check 4 -->
+                            <div class="checklist-card" data-chk-id="ger-4">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-ger-4">
+                                    <label for="chk-ger-4">
+                                        <h4>Placas Temporales Alemanas & Seguro</h4>
+                                        <p>Ausfuhrkennzeichen (placas rojas exportación)</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Tramita las matrículas temporales alemanas en la Zulassungsstelle (Oficina de Tráfico alemana) o mediante gestor online. Asegura la cobertura en España.</p>
+                                    <div class="card-links">
+                                        <a href="https://www.zoll.de/DE/Privatpersonen/Reisen/Reisen-nach-Deutschland/Reisen-mit-dem-Kraftfahrzeug/Ausfuhrkennzeichen/ausfuhrkennzeichen_node.html" target="_blank" class="card-btn-link">Oficina de Tráfico (Alemania)</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SPAIN CHECKLIST -->
+                    <div class="checklist-container" id="chk-spain-container">
+                        <div class="flow-list checklist-flow">
+                            <!-- Check 1 -->
+                            <div class="checklist-card" data-chk-id="esp-1">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-esp-1">
+                                    <label for="chk-esp-1">
+                                        <h4>ITV de Importación</h4>
+                                        <p>Estación ITV en España</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Pasa una inspección técnica ITV de matriculación para emitir la ficha técnica española. Lleva el COC, la documentación alemana y la factura.</p>
+                                    <div class="card-links">
+                                        <a href="https://www.itv.com.es/" target="_blank" class="card-btn-link">Pedir Cita ITV</a>
+                                    </div>
+                                    <div class="upload-area">
+                                        <p class="upload-lbl">Sube tu Ficha Técnica de ITV española aprobada:</p>
+                                        <button class="btn btn-sm btn-upload-doc" data-doc-type="itv">Escanear Ficha ITV</button>
+                                        <div class="uploaded-doc-badge" style="display: none;" id="badge-uploaded-itv">
+                                            <span>📄 ficha_itv_españa.pdf</span>
+                                            <span class="remove-doc">&times;</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check 2 -->
+                            <div class="checklist-card" data-chk-id="esp-2">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-esp-2">
+                                    <label for="chk-esp-2">
+                                        <h4>Impuesto de Matriculación (Mod. 576)</h4>
+                                        <p>Liquidación en la Agencia Tributaria</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Presenta y liquida el Modelo 576 en la AEAT según las emisiones de CO₂ del coche para obtener el CEM (Código de Matriculación).</p>
+                                    <div class="card-links">
+                                        <a href="https://sede.agenciatributaria.gob.es/Sede/procedimientoresolucion/G322.shtml" target="_blank" class="card-btn-link">Sede AEAT Modelo 576</a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Check 3 -->
+                            <div class="checklist-card" data-chk-id="esp-3">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-esp-3">
+                                    <label for="chk-esp-3">
+                                        <h4>Impuesto Municipal (IVTM)</h4>
+                                        <p>Liquidación en tu Ayuntamiento</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Paga el Impuesto de Tracción Mecánica anual (IVTM) en las oficinas tributarias de tu ayuntamiento (Ej. Oviedo).</p>
+                                </div>
+                            </div>
+
+                            <!-- Check 4 -->
+                            <div class="checklist-card" data-chk-id="esp-4">
+                                <div class="card-chk-header">
+                                    <input type="checkbox" id="chk-esp-4">
+                                    <label for="chk-esp-4">
+                                        <h4>Matriculación DGT & Placas</h4>
+                                        <p>Tránsito DGT y placas acrílicas</p>
+                                    </label>
+                                </div>
+                                <div class="card-chk-body">
+                                    <p>Solicita cita en la DGT con toda la documentación validada para recibir tu número de matrícula definitivo y el Permiso de Circulación español. Luego compra tus placas acrílicas en Norauto, Feuvert o tiendas homologadas.</p>
+                                    <div class="card-links">
+                                        <a href="https://sede.dgt.gob.es/es/vehiculos/matricular-vehiculo/" target="_blank" class="card-btn-link">Matriculaciones DGT</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- PAGE 6: DOCUMENT VAULT & SCANNER (MIS DOCUMENTOS) -->
+            <section class="app-page" id="page-documents">
+                <header class="page-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button class="btn-back-home" title="Volver al Inicio" aria-label="Volver al Inicio">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: block;"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                        </button>
+                        <h2>Mis Documentos</h2>
+                    </div>
+                    <div class="global-cost-pill" title="Presupuesto Total Importación">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+                        <span class="global-cost-val">0 €</span>
+                    </div>
+                </header>
+
+                <div class="scroll-container">
+                    <p class="page-desc">Bóveda segura con todos los documentos requeridos. Sube fotos o escanea archivos para tenerlos siempre respaldados en tu viaje.</p>
+
+                    <!-- Document Grid list -->
+                    <div class="document-list-grid">
+                        <div class="doc-vault-item" id="vault-factura">
+                            <div class="doc-icon-status">
+                                <svg viewBox="0 0 24 24" class="doc-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
+                                <span class="doc-dot-status empty"></span>
+                            </div>
+                            <div class="doc-name-desc">
+                                <h4>Contrato / Factura de Venta</h4>
+                                <p>Pendiente de subir</p>
+                            </div>
+                            <button class="btn-vault-scan" data-scan-target="factura">Subir</button>
+                        </div>
+
+                        <div class="doc-vault-item" id="vault-coc">
+                            <div class="doc-icon-status">
+                                <svg viewBox="0 0 24 24" class="doc-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
+                                <span class="doc-dot-status empty"></span>
+                            </div>
+                            <div class="doc-name-desc">
+                                <h4>Certificado de Conformidad (COC)</h4>
+                                <p>Pendiente de subir</p>
+                            </div>
+                            <button class="btn-vault-scan" data-scan-target="coc">Subir</button>
+                        </div>
+
+                        <div class="doc-vault-item" id="vault-permit">
+                            <div class="doc-icon-status">
+                                <svg viewBox="0 0 24 24" class="doc-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
+                                <span class="doc-dot-status empty"></span>
+                            </div>
+                            <div class="doc-name-desc">
+                                <h4>Ficha Alemana (Teil I & II)</h4>
+                                <p>Pendiente de subir</p>
+                            </div>
+                            <button class="btn-vault-scan" data-scan-target="permit">Subir</button>
+                        </div>
+
+                        <div class="doc-vault-item" id="vault-itv">
+                            <div class="doc-icon-status">
+                                <svg viewBox="0 0 24 24" class="doc-icon"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
+                                <span class="doc-dot-status empty"></span>
+                            </div>
+                            <div class="doc-name-desc">
+                                <h4>Ficha Técnica ITV Española</h4>
+                                <p>Pendiente de subir</p>
+                            </div>
+                            <button class="btn-vault-scan" data-scan-target="itv">Subir</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MOCK DOCUMENT CAMERA SCANNER OVERLAY -->
+                <div class="scanner-modal" id="scanner-modal" style="display: none;">
+                    <div class="scanner-header">
+                        <span>Escaneando Documento</span>
+                        <button class="btn-close-scanner" id="btn-close-scanner">&times;</button>
+                    </div>
+                    <div class="scanner-viewport">
+                        <div class="scanner-crop-frame"></div>
+                        <div class="scanner-line"></div>
+                        <span class="scanner-tip">Alinea el documento dentro del marco</span>
+                    </div>
+                    <div class="scanner-footer">
+                        <div class="flash-btn">⚡️</div>
+                        <button class="btn-capture" id="btn-capture-doc">
+                            <div class="btn-capture-inner"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VEHICLE IA COMPARISON MODAL -->
+                <div class="scanner-modal" id="comparison-modal" style="display: none; z-index: 150;">
+                    <div class="scanner-header">
+                        <span>Comparación Técnica con IA Gemini</span>
+                        <button class="btn-close-scanner" id="btn-close-comparison">&times;</button>
+                    </div>
+                    <div class="scroll-container" style="padding-bottom: 40px; background-color: var(--bg-device);">
+                        
+                        <!-- Part 1: Comparison Matrix Table -->
+                        <div class="section-title">
+                            <h2>Matriz de Comparación Técnica</h2>
+                        </div>
+                        <div class="comparison-matrix-wrapper">
+                            <table class="comparison-table" id="matrix-table">
+                                <thead>
+                                    <!-- Filled dynamically -->
+                                </thead>
+                                <tbody>
+                                    <!-- Filled dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Part 2: Gemini AI Chat Assistant -->
+                        <div class="section-title">
+                            <h2>Asistente de IA Gemini</h2>
+                        </div>
+                        <div class="ai-chat-card">
+                            <div class="ai-chat-header">
+                                <span class="ai-status-indicator active"></span>
+                                <span>Google Gemini 1.5 Flash (Gratuito)</span>
+                            </div>
+                            
+                            <div class="ai-chat-messages" id="ai-messages-box">
+                                <div class="ai-msg received">
+                                    <p>¡Hola! Soy tu asistente de IA especializado en importaciones de <strong>Manza AutoGerma Import</strong>.</p>
+                                </div>
+                                <div class="ai-msg received">
+                                    <p>He analizado las especificaciones técnicas, kilometraje, consumos y estimado de impuestos españoles para los vehículos que has seleccionado.</p>
+                                </div>
+                                <div class="ai-msg received">
+                                    <p>¿Sobre qué modelo te gustaría profundizar? Puedo sugerirte preguntas de negociación clave para el vendedor alemán o evaluar cuál es más rentable de importar.</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Suggested Query Chips -->
+                            <div class="ai-chips-container" id="ai-chips">
+                                <button class="ai-chip-btn" data-query="¿Cuál pagará menos impuestos de matriculación (Modelo 576) en España?">¿Cuál paga menos impuestos?</button>
+                                <button class="ai-chip-btn" data-query="¿Qué preguntas clave le hago al vendedor alemán sobre estos coches?">Preguntas de negociación</button>
+                                <button class="ai-chip-btn" data-query="Compara los consumos de combustible y los peajes en la ruta de conducción.">Consumos y peajes ruta</button>
+                                <button class="ai-chip-btn" data-query="¿Cuáles son los pros y contras de fiabilidad de estos modelos?">Pros y contras fiabilidad</button>
+                            </div>
+                            
+                            <!-- Chat Input field -->
+                            <div class="ai-chat-input-area">
+                                <input type="text" id="ai-chat-input" placeholder="Pregunta a la IA sobre estos coches...">
+                                <button class="btn-ai-send" id="btn-ai-send-msg">
+                                    <svg viewBox="0 0 24 24" width="20" height="20"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" fill="currentColor"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Part 3: Gemini Web Suggestions -->
+                        <div class="section-title">
+                            <h2>Portales Alternativos sugeridos por la IA</h2>
+                        </div>
+                        <p class="section-sub">La IA sugiere buscar estas unidades en los siguientes portales y concesionarios recomendados en Alemania para obtener mejores precios o garantías:</p>
+                        
+                        <div class="suggested-portals-grid" id="suggested-websites-box">
+                            <!-- Filled dynamically with "Add to comparison panel" options -->
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <!-- PROFILE SETTINGS & API KEY MODAL -->
+                <div class="scanner-modal" id="settings-modal" style="display: none; z-index: 160;">
+                    <div class="scanner-header">
+                        <span>Ajustes de Perfil & API</span>
+                        <button class="btn-close-scanner" id="btn-close-settings">&times;</button>
+                    </div>
+                    <div class="scroll-container" style="padding-bottom: 24px; background-color: var(--bg-device);">
+                        <div class="settings-card">
+                            <h4>Configuración de API de Gemini</h4>
+                            <p class="settings-desc">Introduce tu clave de API de Google Gemini gratuita para realizar comparaciones con IA real in-situ. Si la dejas en blanco, se activará el Motor de IA Experto Local en su lugar.</p>
+                            <div class="form-group">
+                                <label for="settings-gemini-key">Gemini API Key</label>
+                                <input type="password" id="settings-gemini-key" placeholder="AIzaSy... (Dejar en blanco para IA Local)">
+                            </div>
+                            <button class="btn btn-primary" id="btn-save-settings">Guardar Ajustes</button>
+                        </div>
+                        
+                        <div class="settings-card mt-3">
+                            <h4>Acerca de Manza AutoGerma Import</h4>
+                            <p class="settings-desc">Versión 2.0 (Prototype). Desarrollado para importaciones seguras desde Alemania a España con integraciones del Modelo 576, ITP y comparativas por IA.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COST BREAKDOWN MODAL (MODULE 3) -->
+                <div class="scanner-modal" id="cost-breakdown-modal" style="display: none; z-index: 170;">
+                    <div class="scanner-header">
+                        <span id="breakdown-modal-title">Desglose Detallado de Costes</span>
+                        <button class="btn-close-scanner" id="btn-close-breakdown">&times;</button>
+                    </div>
+                    <div class="scroll-container" style="padding-bottom: 30px; background-color: var(--bg-device); padding-left: 16px; padding-right: 16px;">
+                        
+                        <!-- Selected Car Summary Card -->
+                        <div class="breakdown-summary-card">
+                            <div class="breakdown-summary-main">
+                                <div class="breakdown-summary-lbl" id="breakdown-lbl-total-project">Presupuesto Total de Importación</div>
+                                <div class="breakdown-summary-val" id="breakdown-total-val">0,00 €</div>
+                            </div>
+                            <div class="breakdown-summary-car-desc" id="breakdown-active-car-desc">
+                                Vehículo: Ninguno seleccionado (introducido manualmente)
+                            </div>
+                        </div>
+
+                        <!-- Progress visual chart gauge -->
+                        <div class="breakdown-gauge-box">
+                            <h4 id="breakdown-gauge-title">Distribución del Presupuesto</h4>
+                            <div class="breakdown-gauge-bar">
+                                <div class="breakdown-gauge-segment segment-car" id="gauge-seg-car" style="width: 70%;" title="Coche"></div>
+                                <div class="breakdown-gauge-segment segment-taxes" id="gauge-seg-taxes" style="width: 15%;" title="Impuestos"></div>
+                                <div class="breakdown-gauge-segment segment-logistics" id="gauge-seg-logistics" style="width: 10%;" title="Logística"></div>
+                                <div class="breakdown-gauge-segment segment-fees" id="gauge-seg-fees" style="width: 5%;" title="Trámites/Tasas"></div>
+                            </div>
+                            <div class="breakdown-gauge-labels">
+                                <span class="gauge-dot dot-car" id="breakdown-lbl-seg-car">Vehículo</span>
+                                <span class="gauge-dot dot-taxes" id="breakdown-lbl-seg-taxes">Impuestos</span>
+                                <span class="gauge-dot dot-logistics" id="breakdown-lbl-seg-logistics">Logística</span>
+                                <span class="gauge-dot dot-fees" id="breakdown-lbl-seg-fees">Trámites</span>
+                            </div>
+                        </div>
+
+                        <!-- Itemized Breakdown List -->
+                        <div class="breakdown-list">
+                            
+                            <!-- Category 1: Car purchase price -->
+                            <div class="breakdown-item-card">
+                                <div class="breakdown-item-header">
+                                    <span class="breakdown-dot dot-car"></span>
+                                    <h4 id="breakdown-lbl-cat-car">Precio de Compra del Vehículo</h4>
+                                    <span class="breakdown-item-val" id="breakdown-val-car">0,00 €</span>
+                                </div>
+                                <p class="breakdown-item-sub" id="breakdown-sub-cat-car">Coste de adquisición del coche en el vendedor alemán.</p>
+                            </div>
+
+                            <!-- Category 2: Import taxes -->
+                            <div class="breakdown-item-card">
+                                <div class="breakdown-item-header">
+                                    <span class="breakdown-dot dot-taxes"></span>
+                                    <h4 id="breakdown-lbl-cat-taxes">Impuestos de Importación</h4>
+                                    <span class="breakdown-item-val" id="breakdown-val-taxes">0,00 €</span>
+                                </div>
+                                <p class="breakdown-item-sub" id="breakdown-sub-cat-taxes">Modelo 576 (Impuesto Matriculación) + Impuesto de Transmisiones Patrimoniales (ITP).</p>
+                                <div class="breakdown-sub-details">
+                                    <div class="sub-detail-row"><span>Modelo 576:</span> <strong id="breakdown-val-576">0,00 €</strong></div>
+                                    <div class="sub-detail-row"><span>Impuesto ITP (Particular):</span> <strong id="breakdown-val-itp">0,00 €</strong></div>
+                                </div>
+                            </div>
+
+                            <!-- Category 3: Travel & Route logistics -->
+                            <div class="breakdown-item-card">
+                                <div class="breakdown-item-header">
+                                    <span class="breakdown-dot dot-logistics"></span>
+                                    <h4 id="breakdown-lbl-cat-logistics">Logística de Transporte y Viaje</h4>
+                                    <span class="breakdown-item-val" id="breakdown-val-logistics">0,00 €</span>
+                                </div>
+                                <p class="breakdown-item-sub" id="breakdown-sub-cat-logistics">Vuelos, placas de matrícula temporales, seguro, peajes, combustible y noches de hotel.</p>
+                                <div class="breakdown-sub-details" id="breakdown-logistics-details-box">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+
+                            <!-- Category 4: Administrative fees -->
+                            <div class="breakdown-item-card">
+                                <div class="breakdown-item-header">
+                                    <span class="breakdown-dot dot-fees"></span>
+                                    <h4 id="breakdown-lbl-cat-fees">Trámites Administrativos y Placas</h4>
+                                    <span class="breakdown-item-val" id="breakdown-val-fees">0,00 €</span>
+                                </div>
+                                <p class="breakdown-item-sub" id="breakdown-sub-cat-fees">Ficha reducida e ITV, tasas de la DGT para placas provisionales y definitivas, y comisión de gestión.</p>
+                                <div class="breakdown-sub-details">
+                                    <div class="sub-detail-row"><span>Inspección ITV:</span> <strong>150,00 €</strong></div>
+                                    <div class="sub-detail-row"><span>Tasas DGT & Placas Físicas:</span> <strong>152,50 €</strong></div>
+                                    <div class="sub-detail-row"><span>Gestión de Importación:</span> <strong>302,50 €</strong></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Simulated Print/PDF Button -->
+                        <button class="btn btn-secondary btn-block mt-3" id="btn-print-budget" style="display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                            <span id="breakdown-btn-print">Exportar Presupuesto a PDF</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+
+        </main>
+
+        <!-- Dynamic Bottom Navigation Bar -->
+        <nav class="device-nav-bar">
+            <button class="nav-btn active" data-target="page-dashboard">
+                <svg viewBox="0 0 24 24" class="nav-icon"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" fill="currentColor"/></svg>
+                <span>Inicio</span>
+            </button>
+            <button class="nav-btn" data-target="page-search">
+                <svg viewBox="0 0 24 24" class="nav-icon"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
+                <span>Búsqueda</span>
+            </button>
+            <button class="nav-btn" data-target="page-calculator">
+                <svg viewBox="0 0 24 24" class="nav-icon"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-4 6h-2V7h2v2zm-4 0H9V7h2v2zm-2 4h2v2H9v-2zm4 0h2v2h-2v-2zm4-4h-2v2h2V9zm0 4h-2v2h2v-2zm-8 4h2v2H9v-2zm4 0h2v2h-2v-2zm4 0h-2v2h2v-2z" fill="currentColor"/></svg>
+                <span>Calculadora</span>
+            </button>
+            <button class="nav-btn" data-target="page-travel">
+                <svg viewBox="0 0 24 24" class="nav-icon"><path d="M7 13c1.66 0 3-1.34 3-3S8.66 7 7 7s-3 1.34-3 3 1.34 3 3 3zm12-6h-8v7H3V5H1v15h2v-3h18v3h2v-9c0-2.21-1.79-4-4-4z" fill="currentColor"/></svg>
+                <span>Viaje</span>
+            </button>
+            <button class="nav-btn" data-target="page-checklist">
+                <svg viewBox="0 0 24 24" class="nav-icon"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>
+                <span>Paso a Paso</span>
+            </button>
+            <button class="nav-btn" data-target="page-documents">
+                <svg viewBox="0 0 24 24" class="nav-icon"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-8 11H4v-2h8v2zm0-4H4v-2h8v2zm0-4H4V7h8v2z" fill="currentColor"/></svg>
+                <span>Documentos</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- Background Decoration Grid -->
+    <div class="bg-decoration">
+        <div class="circle circle-one"></div>
+        <div class="circle circle-two"></div>
+    </div>
+
+    <!-- Main JS Application Controller -->
+    <script src="app.js?v=2026_v5"></script>
+</body>
+</html>
