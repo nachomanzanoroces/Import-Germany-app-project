@@ -3181,9 +3181,6 @@ Por favor, utiliza viñetas cortas, títulos profesionales de fase y un tono muy
         item.addEventListener('touchend', (e) => {
             item.classList.remove('active-touch');
             if (!touchMoved) {
-                // Si el usuario toca específicamente en la lupa del paso 1, no duplicar el trigger
-                if (e.target.id === 'btn-flow-search-lupa') return;
-                
                 const step = item.getAttribute('data-step');
                 triggerFlowStep(step);
                 e.preventDefault(); // Evitar la duplicación de clics y delay de 300ms en iOS
@@ -3195,9 +3192,6 @@ Por favor, utiliza viñetas cortas, títulos profesionales de fase y un tono muy
         }, { passive: true });
 
         item.addEventListener('click', (e) => {
-            // Si el usuario hace clic específicamente en la lupa del paso 1, no duplicar el trigger
-            if (e.target.id === 'btn-flow-search-lupa') return;
-            
             const step = item.getAttribute('data-step');
             triggerFlowStep(step);
         });
