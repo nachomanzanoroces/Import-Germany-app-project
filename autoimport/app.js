@@ -3,6 +3,70 @@
    Interactive state, Spanish Tax Engine, Lodging Plan & Mock Scanner Flow
    ========================================================================== */
 
+// ============================================================
+// GLOBAL NAVIGATION — called directly from HTML onclick attrs
+// ============================================================
+function goToStep(step) {
+    const pageMap = {
+        '1': 'page-search',
+        '2': 'page-checklist',
+        '3': 'page-travel',
+        '4': 'page-checklist',
+        '5': 'page-checklist'
+    };
+    const targetId = pageMap[step];
+    if (!targetId) return;
+
+    // Switch visible page
+    document.querySelectorAll('.app-page').forEach(function(page) {
+        if (page.id === targetId) {
+            page.classList.add('active');
+        } else {
+            page.classList.remove('active');
+        }
+    });
+
+    // Sync bottom nav bar
+    document.querySelectorAll('.nav-btn').forEach(function(btn) {
+        if (btn.getAttribute('data-target') === targetId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+
+    // Extra logic for checklist sub-phases
+    if (step === '2') {
+        var ger = document.getElementById('chk-germany-container');
+        var esp = document.getElementById('chk-spain-container');
+        var btnGer = document.getElementById('btn-phase-ger');
+        var btnEsp = document.getElementById('btn-phase-esp');
+        if (ger) ger.classList.add('active');
+        if (esp) esp.classList.remove('active');
+        if (btnGer) btnGer.classList.add('active');
+        if (btnEsp) btnEsp.classList.remove('active');
+    } else if (step === '4' || step === '5') {
+        var ger = document.getElementById('chk-germany-container');
+        var esp = document.getElementById('chk-spain-container');
+        var btnGer = document.getElementById('btn-phase-ger');
+        var btnEsp = document.getElementById('btn-phase-esp');
+        if (esp) esp.classList.add('active');
+        if (ger) ger.classList.remove('active');
+        if (btnEsp) btnEsp.classList.add('active');
+        if (btnGer) btnGer.classList.remove('active');
+        if (step === '5') {
+            setTimeout(function() {
+                var cardDgt = document.querySelector('[data-chk-id="esp-4"]');
+                if (cardDgt) {
+                    var header = cardDgt.querySelector('.card-chk-header');
+                    if (header && !cardDgt.classList.contains('active')) header.click();
+                    cardDgt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 250);
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     
     // ==========================================================================
@@ -31,6 +95,9 @@ document.addEventListener('DOMContentLoaded', () => {
         passengers: 1,
         hotelNights: 2,
         hotelSearchCity: 'Munich, Alemania',
+        
+        // Language setting (persisted across sessions)
+        language: localStorage.getItem('manza_lang') || 'es',
         
         // Upgraded Search module & AI properties
         selectedCars: [],
@@ -2959,7 +3026,8 @@ Por favor, utiliza viñetas cortas, títulos profesionales de fase y un tono muy
     const btnFlowSearchLupa = document.getElementById('btn-flow-search-lupa');
     if (btnFlowSearchLupa) {
         btnFlowSearchLupa.addEventListener('click', (e) => {
-            e.stopPropagation(); // Evitar que dispare otros clics de acordeones o contenedores
+            // No stopPropagation — dejamos que el clic llegue al flow-item padre
+            // y triggerFlowStep('1') lo gestiona; esta línea es un fallback directo
             switchTab('page-search');
         });
     }

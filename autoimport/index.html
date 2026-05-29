@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Main Style Sheet -->
-    <link rel="stylesheet" href="style.css?v=2026_v5">
+    <link rel="stylesheet" href="style.css?v=2026_v12">
 </head>
 <body>
 
@@ -92,41 +92,41 @@
                     </div>
 
                     <div class="flow-list">
-                        <div class="flow-item" data-step="1">
+                        <button class="flow-item" data-step="1" onclick="goToStep('1')" type="button" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
                             <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">🔍</div>
                             <div class="flow-details">
-                                <h4>Búsqueda & Inspección <span id="btn-flow-search-lupa" class="flow-search-lupa-badge" style="cursor: pointer; margin-left: 6px; font-size: 13px; padding: 2px 5px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 6px; color: #a5b4fc; display: inline-flex; align-items: center; justify-content: center; transform: translateY(-1px);" title="Buscar coches ahora">🔍</span></h4>
+                                <h4>Búsqueda & Inspección <span class="flow-search-lupa-badge" style="cursor: pointer; margin-left: 6px; font-size: 13px; padding: 2px 5px; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 6px; color: #a5b4fc; display: inline-flex; align-items: center; justify-content: center; transform: translateY(-1px);" title="Buscar coches ahora">🔍</span></h4>
                                 <p>Filtra coches en Alemania y solicita NeedCarHelp.</p>
                             </div>
-                        </div>
-                        <div class="flow-item" data-step="2">
+                        </button>
+                        <button class="flow-item" data-step="2" onclick="goToStep('2')" type="button" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
                             <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">📋</div>
                             <div class="flow-details">
                                 <h4>Trámites en Alemania</h4>
                                 <p>Factura, COC, Placas temporales y seguro exportación.</p>
                             </div>
-                        </div>
-                        <div class="flow-item" data-step="3">
+                        </button>
+                        <button class="flow-item" data-step="3" onclick="goToStep('3')" type="button" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
                             <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">✈️</div>
                             <div class="flow-details">
                                 <h4>Viaje e Itinerario</h4>
                                 <p>Planifica vuelo/bus y hotel para recoger el vehículo.</p>
                             </div>
-                        </div>
-                        <div class="flow-item" data-step="4">
+                        </button>
+                        <button class="flow-item" data-step="4" onclick="goToStep('4')" type="button" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
                             <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">🏛️</div>
                             <div class="flow-details">
                                 <h4>Trámites en España</h4>
                                 <p>Pasar ITV de importación, Modelo 576 e IVTM.</p>
                             </div>
-                        </div>
-                        <div class="flow-item" data-step="5">
+                        </button>
+                        <button class="flow-item" data-step="5" onclick="goToStep('5')" type="button" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;">
                             <div class="flow-dot" style="font-size: 11px; display: flex; align-items: center; justify-content: center;">🪪</div>
                             <div class="flow-details">
                                 <h4>DGT & Placas Definitivas</h4>
                                 <p>Matrícula de tráfico española y placas acrílicas.</p>
                             </div>
-                        </div>
+                        </button>
                     </div>
 
                     <!-- Budget Summary Card -->
@@ -1351,6 +1351,6 @@
     </div>
 
     <!-- Main JS Application Controller -->
-    <script src="app.js?v=2026_v5"></script>
+    <script src="app.js?v=2026_v12"></script>
 </body>
 </html>
