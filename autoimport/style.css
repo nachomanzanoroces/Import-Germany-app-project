@@ -2185,13 +2185,19 @@ input:checked + .slider-switch:before {
 
 .panel-actions-row {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 6px;
     margin-bottom: 14px;
 }
 
 .panel-actions-row .btn {
     flex: 1;
-    font-size: 11.5px;
+    font-size: 11px;
+    padding: 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 80px;
 }
 
 /* Selected Cars List Grid */

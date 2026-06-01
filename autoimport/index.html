@@ -204,8 +204,9 @@
 
                         <!-- Load Test Presets & Add buttons -->
                         <div class="panel-actions-row">
-                            <button class="btn btn-secondary btn-sm" id="btn-load-presets">Cargar Coches de Prueba</button>
-                            <button class="btn btn-secondary btn-sm" id="btn-toggle-add-form">+ Añadir Coche</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-load-presets">Cargar Prueba</button>
+                            <button class="btn btn-secondary btn-sm" id="btn-toggle-add-form">+ Manual</button>
+                            <button class="btn btn-primary btn-sm" id="btn-toggle-import-web"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="margin-right: 4px;"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/></svg>Importar Web</button>
                         </div>
 
                         <!-- Manual Add Car Form -->
@@ -263,6 +264,65 @@
                             <div class="form-row mt-2">
                                 <button class="btn btn-secondary btn-sm" id="btn-cancel-add-car">Cancelar</button>
                                 <button class="btn btn-primary btn-sm" id="btn-submit-add-car">Añadir al Panel</button>
+                            </div>
+                        </div>
+
+                        <!-- Web Import Expand Form -->
+                        <div class="add-car-expand-form" id="web-import-form" style="display: none; border-left: 4px solid #f97316; margin-top: 15px; background: rgba(249, 115, 22, 0.03);">
+                            <h4 style="display: flex; align-items: center; gap: 8px;">
+                                <svg viewBox="0 0 24 24" width="16" height="16" fill="#f97316"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                                Importador Web Inteligente
+                            </h4>
+                            <p class="panel-sub" style="margin-bottom: 12px; font-size: 11px; color: var(--text-muted);">
+                                Debido a limitaciones de seguridad (CORS y bots) de <strong>Mobile.de</strong> y <strong>AutoScout24</strong>, te ofrecemos dos excelentes soluciones directas:
+                            </p>
+
+                            <!-- Mini Tabs for Web Import options -->
+                            <div style="display: flex; gap: 6px; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px;">
+                                <button class="btn btn-secondary btn-sm" id="tab-btn-bookmarklet" style="height: 28px; font-size: 11px; flex: 1; font-weight: bold; padding: 0 4px;">Marcador 📥</button>
+                                <button class="btn btn-secondary btn-sm" id="tab-btn-copypaste" style="height: 28px; font-size: 11px; flex: 1; padding: 0 4px;">Copiar-Pegar 📋</button>
+                            </div>
+
+                            <!-- TAB 1: BOOKMARKLET -->
+                            <div id="web-import-tab-bookmarklet" style="display: block;">
+                                <p style="font-size: 11px; margin-bottom: 8px; line-height: 1.4; color: var(--text-light);">
+                                    Un <strong>Bookmarklet</strong> es un botón inteligente en tus marcadores. Al pulsarlo en la ficha de un coche en Mobile.de o AutoScout24, lee los datos y te redirige de vuelta aquí al instante.
+                                </p>
+                                <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; margin-bottom: 10px; text-align: center; border: 1px dashed rgba(249, 115, 22, 0.3);">
+                                    <label style="font-size: 10px; font-weight: bold; color: var(--text-light); display: block; margin-bottom: 8px; letter-spacing: 0.5px;">BOTÓN DE ARRASTRE DIRECTO</label>
+                                    <a id="btn-bookmarklet-link" href="#" onclick="alert('Arrastra este botón a tu barra de marcadores/favoritos (Ctrl+Shift+B) para poder usarlo en Mobile.de o AutoScout24'); return false;" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #f97316 0%, #ea6c0a 100%); color: white; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 12px rgba(249,115,22,0.25); cursor: grab;">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="margin-right: 4px;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        Importar a AutoGerma 📥
+                                    </a>
+                                </div>
+                                <div style="font-size: 10.5px; color: var(--text-muted); line-height: 1.4;">
+                                    <strong>Instrucciones:</strong><br>
+                                    1. <strong>Arrastra</strong> el botón de arriba a tu barra de marcadores (actívala en tu navegador si no se muestra).<br>
+                                    2. Entra en <strong>Mobile.de</strong> o <strong>AutoScout24</strong> y abre la ficha de un vehículo.<br>
+                                    3. Haz clic en el marcador <strong>"Importar a AutoGerma 📥"</strong> y el coche se añadirá automáticamente.
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: COPY PASTE ENLACE/TEXTO -->
+                            <div id="web-import-tab-copypaste" style="display: none;">
+                                <p style="font-size: 11px; margin-bottom: 8px; line-height: 1.4; color: var(--text-light);">
+                                    Introduce el enlace del coche de Mobile.de o AutoScout24, o bien copia el texto completo de la web (Ctrl+A y Ctrl+C) para que nuestro extractor inteligente rellene los datos técnicos automáticamente.
+                                </p>
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <label for="web-import-url">Enlace del Coche</label>
+                                    <input type="text" id="web-import-url" placeholder="https://suchen.mobile.de/fahrzeuge/details.html?id=...">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 10px;">
+                                    <label for="web-import-text">Pegar Texto Copiado de la Web (Opcional - Ctrl+V)</label>
+                                    <textarea id="web-import-text" rows="3" placeholder="Pega aquí el texto de la ficha si quieres extracción de datos técnica exacta..." style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; color: var(--text-light); padding: 8px; font-size: 11px; width: 100%; font-family: monospace; resize: vertical;"></textarea>
+                                </div>
+                                <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                    <button class="btn btn-primary btn-sm" id="btn-submit-web-import" style="flex: 2;">Procesar e Importar</button>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+                                <button class="btn btn-secondary btn-sm" id="btn-close-web-import-form" style="width: auto;">Ocultar Importador</button>
                             </div>
                         </div>
 
@@ -1207,6 +1267,46 @@
                         <div class="settings-card mt-3">
                             <h4>Acerca de Manza AutoGerma Import</h4>
                             <p class="settings-desc">Versión 2.0 (Prototype). Desarrollado para importaciones seguras desde Alemania a España con integraciones del Modelo 576, ITP y comparativas por IA.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WEB IMPORT CONFIRMATION MODAL -->
+                <div class="scanner-modal" id="web-import-confirm-modal" style="display: none; z-index: 180;">
+                    <div class="scanner-header" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                        <span>Vehículo Detectado en la Web 📥</span>
+                        <button class="btn-close-scanner" id="btn-close-web-import-confirm">&times;</button>
+                    </div>
+                    <div class="scroll-container" style="padding: 20px; padding-bottom: 45px; background-color: var(--bg-device); display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                        <div class="settings-card" style="width: 100%; max-width: 380px; text-align: center; border: 1.5px solid rgba(249, 115, 22, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                            <div style="background: rgba(249, 115, 22, 0.1); width: 60px; height: 60px; border-radius: 30px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px; margin-left: auto; margin-right: auto;">
+                                <svg viewBox="0 0 24 24" width="30" height="30" fill="#f97316"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            </div>
+                            <h3 style="color: var(--text-light); margin-bottom: 8px;">¡Vehículo Listo para Importar!</h3>
+                            <p style="font-size: 11.5px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4;">
+                                Se han extraído correctamente los datos del coche desde el portal alemán. Confirma si deseas añadirlo a tu panel de comparación.
+                            </p>
+                            
+                            <!-- Preview Card -->
+                            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 12px; text-align: left; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div id="web-confirm-img" class="car-img-thumb sedan" style="width: 70px; height: 50px; border-radius: 8px; flex-shrink: 0; background-size: cover; background-position: center;"></div>
+                                    <div style="flex: 1;">
+                                        <h4 id="web-confirm-title" style="margin: 0 0 4px 0; font-size: 13.5px; color: var(--text-light); font-weight: 700;">Porsche Macan</h4>
+                                        <p id="web-confirm-specs" style="margin: 0; font-size: 11px; color: var(--text-muted);">2021 • 45.000 € • 245 CV</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: var(--text-light);">
+                                    <div>Kilómetros: <strong id="web-confirm-km" style="color: #f97316;">45.000 km</strong></div>
+                                    <div>CO₂: <strong id="web-confirm-co2">185 g/km</strong></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <button class="btn btn-primary" id="btn-web-import-accept">Añadir al Panel de Control</button>
+                                <button class="btn btn-secondary" id="btn-web-import-reject">Descartar</button>
+                            </div>
                         </div>
                     </div>
                 </div>

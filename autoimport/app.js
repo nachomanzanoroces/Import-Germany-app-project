@@ -3124,6 +3124,33 @@ Por favor, utiliza viñetas cortas, títulos profesionales de fase y un tono muy
         const tab = urlParams.get('tab');
         const phase = urlParams.get('phase');
         const expand = urlParams.get('expand');
+        const importDataStr = urlParams.get('importData');
+
+        if (importDataStr) {
+            try {
+                const car = JSON.parse(decodeURIComponent(importDataStr));
+                if (car && car.brand) {
+                    state.tempWebImportCar = car;
+                    
+                    // Populate modal
+                    document.getElementById('web-confirm-title').textContent = `${car.brand} ${car.model}`;
+                    document.getElementById('web-confirm-specs').textContent = `${car.year} • ${car.price.toLocaleString('es-ES')} € • ${car.power} CV`;
+                    document.getElementById('web-confirm-km').textContent = `${car.km.toLocaleString('es-ES')} km`;
+                    document.getElementById('web-confirm-co2').textContent = `${car.co2} g/km`;
+                    document.getElementById('web-confirm-img').className = 'car-img-thumb ' + (car.photo || 'sedan');
+                    
+                    // Show modal
+                    document.getElementById('web-import-confirm-modal').style.display = 'flex';
+                    switchTab('page-search');
+                    
+                    // Clear URL parameters immediately
+                    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+                    window.history.replaceState({path: cleanUrl}, '', cleanUrl);
+                }
+            } catch(e) {
+                console.error("Error parsing importData query parameter", e);
+            }
+        }
 
         if (tab) {
             switchTab(tab);
@@ -3265,7 +3292,514 @@ Por favor, utiliza viñetas cortas, títulos profesionales de fase y un tono muy
         });
     });
 
+    // ==========================================================================
+    // 6. SMART WEB IMPORTER (MOBILE.DE & AUTOSCOUT24)
+    // ==========================================================================
+    
+    // Parse specs out of copied text
+    const parsePastedText = (text) => {
+        const car = {
+            brand: "Marca",
+            model: "Modelo Web",
+            year: new Date().getFullYear() - 2,
+            price: 22000,
+            km: 50000,
+            co2: 125,
+            power: 150,
+            consumption: 5.5,
+            photo: "sedan"
+        };
+
+        // Detect brand
+        const brands = ["Audi", "BMW", "Mercedes-Benz", "Mercedes", "Volkswagen", "VW", "Porsche", "Opel", "Ford", "Seat", "Skoda", "Renault", "Peugeot", "Citroen", "Fiat", "Volvo", "Toyota", "Hyundai", "Kia", "Mini", "Nissan", "Mazda"];
+        for (let b of brands) {
+            const regex = new RegExp(b, "i");
+            if (regex.test(text)) {
+                car.brand = b === "VW" ? "Volkswagen" : (b === "Mercedes" ? "Mercedes-Benz" : b);
+                
+                // Try to extract model
+                const afterBrandRegex = new RegExp(b + "\\s+([A-Za-z0-9\\s\\-]{2,20})", "i");
+                const modelMatch = text.match(afterBrandRegex);
+                if (modelMatch && modelMatch[1]) {
+                    car.model = modelMatch[1].trim().split('\n')[0].trim();
+                }
+                break;
+            }
+        }
+
+        // Extract price
+        const priceRegexes = [
+            /(\d{2}[\.\,]\d{3})\s*€/i,
+            /€\s*(\d{2}[\.\,]\d{3})/i,
+            /(\d{5})\s*€/i,
+            /Precio:?\s*(\d{2}[\.\,]\d{3})/i,
+            /Price:?\s*(\d{2}[\.\,]\d{3})/i
+        ];
+        for (let r of priceRegexes) {
+            const match = text.match(r);
+            if (match && match[1]) {
+                car.price = parseInt(match[1].replace(/[\.\,]/g, ""));
+                break;
+            }
+        }
+
+        // Extract Kilometers
+        const kmRegexes = [
+            /(\d{1,3}[\.\,]\d{3})\s*km/i,
+            /(\d{4,6})\s*km/i,
+            /Kilometraje:?\s*(\d{1,3}[\.\,]\d{3})/i,
+            /Mileage:?\s*(\d{1,3}[\.\,]\d{3})/i
+        ];
+        for (let r of kmRegexes) {
+            const match = text.match(r);
+            if (match && match[1]) {
+                car.km = parseInt(match[1].replace(/[\.\,]/g, ""));
+                break;
+            }
+        }
+
+        // Extract Year
+        const yearRegexes = [
+            /(?:0[1-9]|1[0-2])\/((?:19|20)\d{2})/,
+            /Año:?\s*((?:19|20)\d{2})/i,
+            /Year:?\s*((?:19|20)\d{2})/i,
+            /F\. Reg:?\s*((?:19|20)\d{2})/i,
+            /EZ\s*(?:0[1-9]|1[0-2])\/((?:19|20)\d{2})/i
+        ];
+        for (let r of yearRegexes) {
+            const match = text.match(r);
+            if (match && match[1]) {
+                car.year = parseInt(match[1]);
+                break;
+            }
+        }
+
+        // Extract Power
+        const powerRegexes = [
+            /(\d+)\s*(?:CV|PS|HP|bhp)/i,
+            /(\d+)\s*kW/i
+        ];
+        for (let r of powerRegexes) {
+            const match = text.match(r);
+            if (match && match[1]) {
+                let val = parseInt(match[1]);
+                if (r.source.indexOf("kW") !== -1) {
+                    car.power = Math.round(val * 1.36);
+                } else {
+                    car.power = val;
+                }
+                break;
+            }
+        }
+
+        // Extract CO2
+        const co2Regexes = [
+            /(\d+)\s*g\s*CO/i,
+            /(\d+)\s*g\/km/i,
+            /CO2:?\s*(\d+)/i
+        ];
+        for (let r of co2Regexes) {
+            const match = text.match(r);
+            if (match && match[1]) {
+                car.co2 = parseInt(match[1]);
+                break;
+            }
+        }
+
+        // Select photo preset based on keywords
+        const m = (car.brand + " " + car.model).toLowerCase();
+        if (m.indexOf("avant") !== -1 || m.indexOf("touring") !== -1 || m.indexOf("estate") !== -1 || m.indexOf("variante") !== -1 || m.indexOf("combi") !== -1) {
+            car.photo = "familiar";
+        } else if (m.indexOf("suv") !== -1 || m.indexOf("q5") !== -1 || m.indexOf("q3") !== -1 || m.indexOf("q7") !== -1 || m.indexOf("x3") !== -1 || m.indexOf("x5") !== -1 || m.indexOf("gle") !== -1 || m.indexOf("glc") !== -1 || m.indexOf("macan") !== -1 || m.indexOf("cayenne") !== -1 || m.indexOf("tiguan") !== -1) {
+            car.photo = "suv";
+        } else if (m.indexOf("coupe") !== -1 || m.indexOf("cabr") !== -1 || m.indexOf("porsche") !== -1 || m.indexOf("911") !== -1 || m.indexOf("amg") !== -1 || m.indexOf("m3") !== -1 || m.indexOf("m4") !== -1) {
+            car.photo = "coupe";
+        } else if (m.indexOf("golf") !== -1 || m.indexOf("a3") !== -1 || m.indexOf("clio") !== -1 || m.indexOf("polo") !== -1 || m.indexOf("compact") !== -1 || m.indexOf("leon") !== -1 || m.indexOf("ibiza") !== -1) {
+            car.photo = "compact";
+        } else {
+            car.photo = "sedan";
+        }
+
+        return car;
+    };
+
+    // Parse URL keywords & generate simulated spec card
+    const parseUrlKeywords = (url) => {
+        const car = {
+            brand: "",
+            model: "",
+            year: 2021,
+            price: 29500,
+            km: 48000,
+            co2: 129,
+            power: 190,
+            consumption: 5.2,
+            photo: "sedan",
+            isSimulated: true
+        };
+
+        const lowercaseUrl = url.toLowerCase();
+        
+        // Detect brand
+        const brands = ["audi", "bmw", "mercedes", "porsche", "volkswagen", "vw", "ford", "opel", "seat", "skoda", "renault", "peugeot", "citroen", "fiat", "volvo", "toyota", "hyundai", "kia", "mini"];
+        for (let b of brands) {
+            if (lowercaseUrl.indexOf(b) !== -1) {
+                car.brand = b === "vw" ? "Volkswagen" : (b === "mercedes" ? "Mercedes-Benz" : b.charAt(0).toUpperCase() + b.slice(1));
+                
+                // Extract model
+                const modelRegex = new RegExp(b + "[-_\\/\\+\\s]([a-z0-9\\-_]+)", "i");
+                const modelMatch = url.match(modelRegex);
+                if (modelMatch && modelMatch[1]) {
+                    car.model = modelMatch[1].split(/[?&#]/)[0].replace(/[-_]/g, " ").trim();
+                    car.model = car.model.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+                }
+                break;
+            }
+        }
+
+        if (!car.brand) {
+            try {
+                const urlObj = new URL(url);
+                const params = new URLSearchParams(urlObj.search);
+                if (params.get('make') || params.get('brand')) {
+                    car.brand = params.get('make') || params.get('brand');
+                }
+                if (params.get('model')) {
+                    car.model = params.get('model');
+                }
+            } catch(e){}
+        }
+
+        if (!car.brand) {
+            car.brand = "Porsche";
+            car.model = "Macan S Diesel";
+            car.photo = "suv";
+            car.price = 38900;
+            car.year = 2019;
+            car.km = 78000;
+            car.power = 258;
+            car.co2 = 159;
+            car.consumption = 6.3;
+        } else {
+            if (!car.model) car.model = "Modelo Importado";
+            const b = car.brand.toLowerCase();
+            if (b === "porsche") {
+                car.price = 59000;
+                car.year = 2020;
+                car.km = 45000;
+                car.power = 300;
+                car.co2 = 185;
+                car.consumption = 8.5;
+                car.photo = "coupe";
+            } else if (b === "audi" || b === "bmw" || b === "mercedes-benz") {
+                car.price = 32000;
+                car.year = 2021;
+                car.km = 55000;
+                car.power = 190;
+                car.co2 = 125;
+                car.consumption = 5.2;
+                car.photo = "familiar";
+            } else {
+                car.price = 19500;
+                car.year = 2021;
+                car.km = 60000;
+                car.power = 130;
+                car.co2 = 115;
+                car.consumption = 4.8;
+                car.photo = "compact";
+            }
+        }
+
+        const m = (car.brand + " " + car.model).toLowerCase();
+        if (m.indexOf("avant") !== -1 || m.indexOf("touring") !== -1 || m.indexOf("estate") !== -1 || m.indexOf("variante") !== -1 || m.indexOf("combi") !== -1) {
+            car.photo = "familiar";
+        } else if (m.indexOf("suv") !== -1 || m.indexOf("q5") !== -1 || m.indexOf("q3") !== -1 || m.indexOf("q7") !== -1 || m.indexOf("x3") !== -1 || m.indexOf("x5") !== -1 || m.indexOf("gle") !== -1 || m.indexOf("glc") !== -1 || m.indexOf("macan") !== -1 || m.indexOf("cayenne") !== -1 || m.indexOf("tiguan") !== -1) {
+            car.photo = "suv";
+        } else if (m.indexOf("coupe") !== -1 || m.indexOf("cabr") !== -1 || m.indexOf("porsche") !== -1 || m.indexOf("911") !== -1 || m.indexOf("amg") !== -1 || m.indexOf("m3") !== -1 || m.indexOf("m4") !== -1) {
+            car.photo = "coupe";
+        } else if (m.indexOf("golf") !== -1 || m.indexOf("a3") !== -1 || m.indexOf("clio") !== -1 || m.indexOf("polo") !== -1 || m.indexOf("compact") !== -1 || m.indexOf("leon") !== -1 || m.indexOf("ibiza") !== -1) {
+            car.photo = "compact";
+        }
+
+        return car;
+    };
+
+    // Dynamically generate bookmarklet link
+    const setupBookmarklet = () => {
+        const localOrigin = window.location.origin || "https://localhost:8000";
+        const rawScript = `javascript:(function(){
+            var car = {
+                brand: "",
+                model: "",
+                year: new Date().getFullYear() - 3,
+                price: 25000,
+                km: 50000,
+                co2: 130,
+                power: 150,
+                consumption: 5.5,
+                photo: "sedan",
+                url: window.location.href
+            };
+            var host = window.location.hostname;
+            var bodyText = document.body.innerText || "";
+            
+            if (host.indexOf("mobile.de") !== -1) {
+                var scripts = document.querySelectorAll('script[type="application/ld+json"]');
+                for (var i = 0; i < scripts.length; i++) {
+                    try {
+                        var json = JSON.parse(scripts[i].innerText);
+                        if (json["@type"] === "Car" || json["@type"] === "Vehicle" || json.offers) {
+                            car.brand = json.brand || car.brand;
+                            car.model = json.model || car.model;
+                            if (json.offers && json.offers.price) car.price = parseInt(json.offers.price);
+                            break;
+                        }
+                    } catch(e){}
+                }
+                var h1 = document.querySelector('h1#ad-title, h1');
+                if (h1) {
+                    var fullTitle = h1.innerText.trim();
+                    var parts = fullTitle.split(" ");
+                    car.brand = parts[0] || car.brand;
+                    car.model = parts.slice(1).join(" ") || car.model;
+                }
+                var priceEl = document.querySelector('[data-testid="prime-price"], .h3, .price-block');
+                if (priceEl) {
+                    var pVal = priceEl.innerText.replace(/[^0-9]/g, "");
+                    if (pVal) car.price = parseInt(pVal);
+                }
+                var specElements = document.querySelectorAll('.g-col-6, .key-feature, .key-features__value, .tech-data, td');
+                specElements.forEach(function(el) {
+                    var txt = el.innerText.trim();
+                    if (txt.indexOf("km") !== -1) {
+                        var kmVal = txt.replace(/[^0-9]/g, "");
+                        if (kmVal) car.km = parseInt(kmVal);
+                    }
+                    if (txt.indexOf("/") !== -1 && txt.match(/\\d{2}\\/\\d{4}/)) {
+                        var match = txt.match(/\\d{4}/);
+                        if (match) car.year = parseInt(match[0]);
+                    }
+                });
+                var powerMatch = bodyText.match(/(\\d+)\\s*(?:CV|PS|hp)/i) || bodyText.match(/(\\d+)\\s*kW/i);
+                if (powerMatch) car.power = parseInt(powerMatch[1]);
+                var co2Match = bodyText.match(/(\\d+)\\s*g\\s*CO/i) || bodyText.match(/(\\d+)\\s*g\\/km/i);
+                if (co2Match) car.co2 = parseInt(co2Match[1]);
+            } 
+            else if (host.indexOf("autoscout24") !== -1) {
+                var scripts = document.querySelectorAll('script[type="application/ld+json"]');
+                for (var i = 0; i < scripts.length; i++) {
+                    try {
+                        var json = JSON.parse(scripts[i].innerText);
+                        if (json.name) {
+                            var parts = json.name.split(" ");
+                            car.brand = parts[0] || car.brand;
+                            car.model = parts.slice(1).join(" ") || car.model;
+                        }
+                        if (json.offers && json.offers.price) car.price = parseInt(json.offers.price);
+                    } catch(e){}
+                }
+                var h1 = document.querySelector('h1');
+                if (h1) {
+                    var fullTitle = h1.innerText.trim();
+                    var parts = fullTitle.split(" ");
+                    car.brand = parts[0] || car.brand;
+                    car.model = parts.slice(1).join(" ") || car.model;
+                }
+                var priceEl = document.querySelector('.price-details__price, [data-testid="price"], .price');
+                if (priceEl) {
+                    var pVal = priceEl.innerText.replace(/[^0-9]/g, "");
+                    if (pVal) car.price = parseInt(pVal);
+                }
+                var kmMatch = bodyText.match(/([\\d\\.]+)\\s*km/i);
+                if (kmMatch) car.km = parseInt(kmMatch[1].replace(/\\./g, ""));
+                var yearMatch = bodyText.match(/(?:19|20)\\d{2}/);
+                if (yearMatch) car.year = parseInt(yearMatch[0]);
+                var powerMatch = bodyText.match(/(\\d+)\\s*(?:CV|PS|hp)/i);
+                if (powerMatch) car.power = parseInt(powerMatch[1]);
+                var co2Match = bodyText.match(/(\\d+)\\s*g\\/km/i);
+                if (co2Match) car.co2 = parseInt(co2Match[1]);
+            } 
+            else {
+                alert("Este marcador solo funciona dentro de fichas de vehículos en Mobile.de o AutoScout24!");
+                return;
+            }
+            
+            var m = (car.brand + " " + car.model).toLowerCase();
+            if (m.indexOf("avant") !== -1 || m.indexOf("touring") !== -1 || m.indexOf("estate") !== -1 || m.indexOf("variante") !== -1 || m.indexOf("combi") !== -1) {
+                car.photo = "familiar";
+            } else if (m.indexOf("suv") !== -1 || m.indexOf("q5") !== -1 || m.indexOf("q3") !== -1 || m.indexOf("q7") !== -1 || m.indexOf("x3") !== -1 || m.indexOf("x5") !== -1 || m.indexOf("gle") !== -1 || m.indexOf("glc") !== -1 || m.indexOf("macan") !== -1 || m.indexOf("cayenne") !== -1 || m.indexOf("tiguan") !== -1) {
+                car.photo = "suv";
+            } else if (m.indexOf("coupe") !== -1 || m.indexOf("cabr") !== -1 || m.indexOf("porsche") !== -1 || m.indexOf("911") !== -1 || m.indexOf("amg") !== -1 || m.indexOf("m3") !== -1 || m.indexOf("m4") !== -1) {
+                car.photo = "coupe";
+            } else if (m.indexOf("golf") !== -1 || m.indexOf("a3") !== -1 || m.indexOf("clio") !== -1 || m.indexOf("polo") !== -1 || m.indexOf("compact") !== -1 || m.indexOf("leon") !== -1 || m.indexOf("ibiza") !== -1) {
+                car.photo = "compact";
+            } else {
+                car.photo = "sedan";
+            }
+            
+            window.location.href = "${localOrigin}/?importData=" + encodeURIComponent(JSON.stringify(car));
+        })();`;
+
+        const btnBookmarklet = document.getElementById('btn-bookmarklet-link');
+        if (btnBookmarklet) {
+            btnBookmarklet.setAttribute('href', rawScript.replace(/\s+/g, ' '));
+        }
+    };
+
+    // Core web importer initialization
+    const initWebImporter = () => {
+        // Toggle Web Import panel
+        const btnToggleImport = document.getElementById('btn-toggle-import-web');
+        const webImportForm = document.getElementById('web-import-form');
+        const addCarForm = document.getElementById('add-car-form');
+        const btnCloseImportForm = document.getElementById('btn-close-web-import-form');
+
+        if (btnToggleImport && webImportForm) {
+            btnToggleImport.addEventListener('click', () => {
+                webImportForm.style.display = webImportForm.style.display === 'none' ? 'block' : 'none';
+                if (addCarForm) addCarForm.style.display = 'none'; // hide manual form
+            });
+        }
+
+        // Toggle Manual form should hide Web Import form
+        const btnToggleManualForm = document.getElementById('btn-toggle-add-form');
+        if (btnToggleManualForm && webImportForm) {
+            btnToggleManualForm.addEventListener('click', () => {
+                webImportForm.style.display = 'none';
+            });
+        }
+
+        if (btnCloseImportForm && webImportForm) {
+            btnCloseImportForm.addEventListener('click', () => {
+                webImportForm.style.display = 'none';
+            });
+        }
+
+        // Mini Tab switching
+        const tabBookmarklet = document.getElementById('tab-btn-bookmarklet');
+        const tabCopypaste = document.getElementById('tab-btn-copypaste');
+        const contentBookmarklet = document.getElementById('web-import-tab-bookmarklet');
+        const contentCopypaste = document.getElementById('web-import-tab-copypaste');
+
+        if (tabBookmarklet && tabCopypaste) {
+            tabBookmarklet.addEventListener('click', () => {
+                contentBookmarklet.style.display = 'block';
+                contentCopypaste.style.display = 'none';
+                tabBookmarklet.style.fontWeight = 'bold';
+                tabBookmarklet.style.background = 'rgba(249, 115, 22, 0.12)';
+                tabBookmarklet.style.borderColor = 'rgba(249, 115, 22, 0.4)';
+                tabCopypaste.style.fontWeight = 'normal';
+                tabCopypaste.style.background = 'rgba(249, 115, 22, 0.07)';
+                tabCopypaste.style.borderColor = 'rgba(249, 115, 22, 0.25)';
+            });
+            tabCopypaste.addEventListener('click', () => {
+                contentBookmarklet.style.display = 'none';
+                contentCopypaste.style.display = 'block';
+                tabCopypaste.style.fontWeight = 'bold';
+                tabCopypaste.style.background = 'rgba(249, 115, 22, 0.12)';
+                tabCopypaste.style.borderColor = 'rgba(249, 115, 22, 0.4)';
+                tabBookmarklet.style.fontWeight = 'normal';
+                tabBookmarklet.style.background = 'rgba(249, 115, 22, 0.07)';
+                tabBookmarklet.style.borderColor = 'rgba(249, 115, 22, 0.25)';
+            });
+        }
+
+        // Process copy-paste or URL submit
+        const btnSubmitImport = document.getElementById('btn-submit-web-import');
+        if (btnSubmitImport) {
+            btnSubmitImport.addEventListener('click', () => {
+                const urlVal = document.getElementById('web-import-url').value.trim();
+                const textVal = document.getElementById('web-import-text').value.trim();
+
+                if (!urlVal && !textVal) {
+                    alert('Por favor, proporciona un enlace del coche o pega el texto copiado de la web.');
+                    return;
+                }
+
+                let car;
+                if (textVal) {
+                    car = parsePastedText(textVal);
+                    // use URL brand if text failed
+                    if ((!car.brand || car.brand === "Marca") && urlVal) {
+                        const urlCar = parseUrlKeywords(urlVal);
+                        car.brand = urlCar.brand;
+                        car.model = urlCar.model;
+                        car.photo = urlCar.photo;
+                    }
+                } else {
+                    car = parseUrlKeywords(urlVal);
+                }
+
+                state.tempWebImportCar = car;
+
+                // Populate modal
+                document.getElementById('web-confirm-title').textContent = `${car.brand} ${car.model}`;
+                document.getElementById('web-confirm-specs').textContent = `${car.year} • ${car.price.toLocaleString('es-ES')} € • ${car.power} CV`;
+                document.getElementById('web-confirm-km').textContent = `${car.km.toLocaleString('es-ES')} km`;
+                document.getElementById('web-confirm-co2').textContent = `${car.co2} g/km`;
+                document.getElementById('web-confirm-img').className = 'car-img-thumb ' + (car.photo || 'sedan');
+
+                // Show modal
+                document.getElementById('web-import-confirm-modal').style.display = 'flex';
+            });
+        }
+
+        // Modal Confirmation actions
+        const btnAccept = document.getElementById('btn-web-import-accept');
+        const btnReject = document.getElementById('btn-web-import-reject');
+        const btnCloseConfirm = document.getElementById('btn-close-web-import-confirm');
+
+        const hideConfirmModal = () => {
+            document.getElementById('web-import-confirm-modal').style.display = 'none';
+        };
+
+        if (btnAccept) {
+            btnAccept.addEventListener('click', () => {
+                if (state.selectedCars.length >= 4) {
+                    alert('El panel soporta un máximo de 4 coches a la vez.');
+                    hideConfirmModal();
+                    return;
+                }
+
+                const importedCar = state.tempWebImportCar;
+                if (importedCar) {
+                    importedCar.id = 'web-' + Date.now();
+                    importedCar.selected = true;
+                    state.selectedCars.push(importedCar);
+                    renderCarList();
+
+                    // Success actions
+                    hideConfirmModal();
+                    if (webImportForm) webImportForm.style.display = 'none';
+                    document.getElementById('web-import-url').value = '';
+                    document.getElementById('web-import-text').value = '';
+                    state.tempWebImportCar = null;
+
+                    alert('¡Vehículo importado y añadido al panel de control con éxito!');
+                }
+            });
+        }
+
+        if (btnReject) {
+            btnReject.addEventListener('click', () => {
+                hideConfirmModal();
+                state.tempWebImportCar = null;
+            });
+        }
+
+        if (btnCloseConfirm) {
+            btnCloseConfirm.addEventListener('click', () => {
+                hideConfirmModal();
+                state.tempWebImportCar = null;
+            });
+        }
+
+        // Setup Bookmarklet on start
+        setupBookmarklet();
+    };
+
     // Run initial settings
+    initWebImporter();
     applyLanguage(state.language);
 
     // Run initial tax calculations in calculator engine to populate active variables
